@@ -12,7 +12,7 @@ unsigned long OldWhiteTime = 0;
 unsigned long OldRedTime = 0;
 
 const long WhiteTimer = 100;
-const long RedTimer = 300;
+const long RedTimer = 1000;
 const long GlowTimer = 500;
 
 bool RedState = false;
@@ -30,14 +30,13 @@ void setup() {
   digitalWrite(WhitePin2, HIGH);
   digitalWrite(WhitePin3, HIGH);
 
-  delay(500);
+  delay(50);
   digitalWrite(WhitePin2, LOW);
-  delay(500);
+  delay(50);
   digitalWrite(WhitePin3, LOW);
-  delay(500);
+  delay(50);
   analogWrite(RedPin1, 0);
   analogWrite(RedPin2, 0);
-
 }
 
 void loop() {
@@ -49,33 +48,34 @@ void loop() {
 
     if (WhiteState == false) {
       WhiteState = true;
-      if (RedState == true) {
+      
+      if (RedTime - OldRedTime >= RedTimer) {
+        OldRedTime = RedTime;
+
+        analogWrite(RedPin1, brightness);
+        analogWrite(RedPin2, brightness);
+
+        RedState = true;
         WhiteState = false;
+        brightness = brightness + fadeAmount;
+
+        if (brightness <= 0 && brightness >= 255) {
+          fadeAmount = -fadeAmount;
+        }
+      } else {
+        RedState = false;
+
+        analogWrite(RedPin1, 0);
+        analogWrite(RedPin2, 0);
       }
+
     } else {
+      WhiteState = false;
+    }
+    if (RedState == true) {
       WhiteState = false;
     }
     digitalWrite(WhitePin2, WhiteState);
     digitalWrite(WhitePin3, WhiteState);
-  }
-
-  if (RedTime - OldRedTime >= RedTimer) {
-    OldRedTime = RedTime;
-
-    analogWrite(RedPin1, brightness);
-    analogWrite(RedPin2, brightness);
-
-    RedState = true;
-    WhiteState = false;
-    brightness = brightness + fadeAmount;
-
-    if (brightness <= 0 && brightness >= 255) {
-      fadeAmount = -fadeAmount;
-    }
-  } else {
-    RedState = false;
-
-    analogWrite(RedPin1, 0);
-    analogWrite(RedPin2, 0);
   }
 }
